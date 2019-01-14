@@ -31,26 +31,41 @@ app.get('/shopping-list', (req, res) => {
   res.json(ShoppingList.get());
 });
 
+app.get('/recipes', (req, res) => {
+  res.json(Recipes.get());
+});
+
 app.post('/shopping-list', jsonParser, (req, res) => {
   // ensure `name` and `budget` are in request body
-  const requiredFields = ['name', 'budget'];
-  for (let i=0; i<requiredFields.length; i++) {
-    const field = requiredFields[i];
-    if (!(field in req.body)) {
-      const message = `Missing \`${field}\` in request body`
-      console.error(message);
-      return res.status(400).send(message);
-    }
+  // const requiredFields = ['name', 'budget'];
+  // for (let i=0; i<requiredFields.length; i++) {
+  //   const field = requiredFields[i];
+  //   if (!(field in req.body)) {
+  //     const message = `Missing \`${field}\` in request body`
+  //     console.error(message);
+  //     return res.status(400).send(message);
+  //   }
+  // }
+
+  if (!(('name' in req.body) && ('budget' in req.body))) {
+    const message = `Missing 'name' and/or 'budget' in request body`;
+    console.error(message);
+    return res.status(400).send(message);
   }
 
   const item = ShoppingList.create(req.body.name, req.body.budget);
   res.status(201).json(item);
 });
 
-
-app.get('/recipes', (req, res) => {
-  res.json(Recipes.get());
-})
+app.post('/recipes', jsonParser, (req, res) => {
+  if (!(('name' in req.body) && ('ingredients' in req.body))) {
+    const message = `Missing 'name' and/or 'ingredients' in request body`;
+    console.log(message);
+    return res.status(400).send(message);
+  }
+  const recipe = Recipes.create(req.body.name, req.body.ingredients);
+  return res.status(201).json(recipe);
+});
 
 app.listen(process.env.PORT || 8080, () => {
   console.log(`Your app is listening on port ${process.env.PORT || 8080}`);
